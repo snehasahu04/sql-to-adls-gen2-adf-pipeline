@@ -1,0 +1,95 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "silver",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "filter1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          OrderID as integer,",
+				"          CustomerName as string,",
+				"          CustomerEmail as string,",
+				"          City as string,",
+				"          State as string,",
+				"          Country as string,",
+				"          ProductName as string,",
+				"          Category as string,",
+				"          Quantity as integer,",
+				"          UnitPrice as decimal(10,2),",
+				"          TotalAmount as decimal(21,2),",
+				"          OrderDate as date,",
+				"          ShippingStatus as string,",
+				"          PaymentMethod as string,",
+				"          CreatedAt as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> source1",
+				"source1 derive(CustomerName = iifNull(CustomerName, 'Unknown Customer'),",
+				"          CustomerEmail = iifNull(CustomerEmail, 'not_provided@email.com'),",
+				"          City = iifNull(City, 'Unknown City'),",
+				"          State = iifNull(State, 'Unknown State'),",
+				"          Category = iifNull(ProductName, 'Unknown Product'),",
+				"          Quantity = iifNull(Quantity, 0),",
+				"          UnitPrice = iifNull(UnitPrice, 0.0),",
+				"          ShippingStatus = iifNull(ShippingStatus, 'Not Updated'),",
+				"          PaymentMethod = iifNull(PaymentMethod, 'Not Specified'),",
+				"          TotalAmount = iifNull(Quantity, 0) * iifNull(UnitPrice, 0.0),",
+				"          ProductName = iifNull(ProductName, 'Unknown Product'),",
+				"          OrderDate = iifNull(OrderDate, toDate('1900-01-01'))) ~> derivedColumn1",
+				"derivedColumn1 filter(!isNull(OrderDate)) ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          OrderID as integer,",
+				"          CustomerName as string,",
+				"          CustomerEmail as string,",
+				"          City as string,",
+				"          State as string,",
+				"          Country as string,",
+				"          ProductName as string,",
+				"          Category as string,",
+				"          Quantity as integer,",
+				"          UnitPrice as decimal(10,2),",
+				"          TotalAmount as decimal(21,2),",
+				"          OrderDate as date,",
+				"          ShippingStatus as string,",
+				"          PaymentMethod as string,",
+				"          CreatedAt as timestamp",
+				"     ),",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

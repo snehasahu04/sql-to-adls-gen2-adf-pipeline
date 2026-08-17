@@ -1,0 +1,15 @@
+{
+	"name": "adf-sneha123",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "00d09b31-ca5e-41b4-838a-058d384a584e",
+		"tenantId": "4e213033-9ffd-46f1-8111-bf9d38b29da2"
+	}
+}
